@@ -20,7 +20,7 @@ echo "$PUBLIC_KEY" >> "$ROOT_HOME/.ssh/authorized_keys"
 
 # Allow additional users to login via SSH using the root account
 # Replace "user1" and "user2" with the desired usernames
-sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # Restart SSH service to apply changes
 service ssh restart
