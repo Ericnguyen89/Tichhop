@@ -26,7 +26,8 @@ sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_
 service ssh restart
 apt-get install -y curl gcc-mingw-w64 g++-mingw-w64-i686 g++-mingw-w64-x86-64 nsis make cmake
 
-echo "SYSTEM READY to START."
+
 
 git clone https://github.com/wazuh/wazuh.git
-cd /wazuh/src
+cd /wazuh/src/
+echo "\n ----------------------------------\n SYSTEM READY to START."
