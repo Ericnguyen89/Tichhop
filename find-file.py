@@ -20,6 +20,8 @@ def search_files(directory, content_to_search):
 
 # Người dùng nhập đường dẫn thư mục và nội dung tìm kiếm
 search_directory = input("Enter the directory path to search: ")
+if not search_directory:
+    search_directory = "/root/wazuh/src"
 content_to_search = input("Enter the content to search: ")
 
 # Kiểm tra xem đường dẫn tồn tại hay không
