@@ -12,7 +12,8 @@ def search_files(directory, content_to_search):
                         print(f"\n ---------------------------\n FILE FOUND: {file_path}\n--------------------------------\n")
                         found_flag = True
             except Exception as e:
-                print(f"Error reading file {file_path}: {str(e)}")
+                pass
+                #print(f"Error reading file {file_path}: {str(e)}")
 
     if not found_flag:
         print("File not found or cannot be opened.")
