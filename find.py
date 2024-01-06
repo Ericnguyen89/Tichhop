@@ -8,7 +8,7 @@ def search_files(directory, content_to_search):
                 with open(file_path, 'r') as f:
                     file_content = f.read()
                     if content_to_search in file_content:
-                        print(f"\n ---------------------------\n File found: {file_path}\n--------------------------------\n")
+                        print(f"\n ---------------------------\n FILE FOUND: {file_path}\n--------------------------------\n")
             except Exception as e:
                 print(f"Error reading file {file_path}: {str(e)}")
 
