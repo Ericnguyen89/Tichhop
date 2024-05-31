@@ -6,6 +6,8 @@ install_mosquitto() {
     sudo apt install -y mosquitto mosquitto-clients
     sudo systemctl enable mosquitto
     sudo systemctl start mosquitto
+    sudo iptables -A INPUT -p tcp --dport 8883 -j ACCEPT
+    sudo iptables-save
 }
 
 # Hàm cấu hình Mosquitto với Let's Encrypt SSL
