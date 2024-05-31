@@ -143,6 +143,7 @@ domain_ip=$(dig +short $DOMAIN)
  # Kiểm tra domain và cấu hình SSL tương ứng
 if [[ -z "$DOMAIN" || "$DOMAIN" == "localhost" ]]; then
     echo "Cấu hình MQTT với self-signed certificate"
+    install_mosquitto
     configure_mosquitto_selfsigned
 else
     echo "Cấu hình MQTT với SSL Let's Encrypt cho domain: $DOMAIN"
