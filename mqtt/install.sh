@@ -41,30 +41,27 @@ EOT
 
     sudo systemctl restart mosquitto
     #tạo service tự động gia hạn cert-bot
-    sudo tee /usr/local/bin/update_mosquitto_certs.sh > /dev/null <<EOT
+    cat << 'EOF' > /usr/local/bin/update_mosquitto_certs.sh
+#!/bin/bash
+sleep 10
 sudo cat /etc/letsencrypt/live/$DOMAIN/cert.pem > /etc/mosquitto/certs/certificate.pem
 sudo cat /etc/letsencrypt/live/$DOMAIN/fullchain.pem > /etc/mosquitto/certs/ca.pem
 sudo cat /etc/letsencrypt/live/$DOMAIN/privkey.pem > /etc/mosquitto/certs/private.key
 sudo chmod 0600 /etc/mosquitto/certs/*
 sudo chown mosquitto: /etc/mosquitto/certs/*
-EOT 
-    sudo chmod +x /usr/local/bin/update_mosquitto_certs.sh
+# Gửi tín hiệu HUP để Mosquitto nạp lại cấu hình
+sudo pkill -HUP -x mosquitto
+EOF
 
-sudo tee /etc/systemd/system/update-mqtt-certs.service > /dev/null <<EOT
-[Unit]
-Description=Update Mosquitto certificates after renewal
-After=network.target
+    # Cấp quyền thực thi cho hook script
+    chmod +x /usr/local/bin/update_mosquitto_certs.sh
+    #thay đổi cronjob gia hạn mỗi ngày thành gia hạn chứng chỉ sau 2 tháng
+    sudo sed -i 's|0 \*/12 \* \* \*|0 0 1 \*/2 \*|' /etc/cron.d/certbot
+    #cập nhật cronjob để thực hiện lệnh update cert cho mqtt sau khi gia hạn
+    sudo sed -i 's|sleep-on-renew|sleep-on-renew --deploy-hook \"/bin/bash /usr/local/bin/update_mosquitto_certs.sh &\"|' /etc/cron.d/certbot
 
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/update_mosquitto_certs.sh
 
-[Install]
-WantedBy=multi-user.target
 
-EOT
-    sudo systemctl daemon-reload
-    sudo systemctl enable update-mqtt-certs.service
 }
 
 # Hàm cấu hình Mosquitto với self-signed certificate
@@ -113,25 +110,24 @@ hardening_mqtt() {
     echo "allow_anonymous false" >> /etc/mosquitto/conf.d/ssl.conf
     echo "password_file /etc/mosquitto/passwd" >> /etc/mosquitto/conf.d/ssl.conf
     while true; do
-    echo "Nhập username:"
-    read -r username
+        read -p "Tạo User MQTT:" username
 
-    echo "Nhập password:"
-    read -rs password
-    echo
+        echo "Nhập password:"
+        read -rs password
+        echo
 
-    # Tạo user MQTT
-    sudo mosquitto_passwd -b /etc/mosquitto/passwd "$username" "$password"
-    echo "User $username đã được tạo thành công."
+        # Tạo user MQTT
+        sudo mosquitto_passwd -b /etc/mosquitto/passwd "$username" "$password"
+        echo "User $username đã được tạo thành công."
 
-    echo "Nhấn Enter để tiếp tục: (Esc để thoát)"
+        echo "Nhấn Enter để tiếp tục: (Esc để thoát)"
 
-    # Kiểm tra phím ESC
-    check_escape
-    if [[ $? -eq 1 ]]; then
-        echo "Đã ngừng tạo mới user:"
-        break
-    fi
+        # Kiểm tra phím ESC
+        check_escape
+        if [[ $? -eq 1 ]]; then
+            echo "Đã ngừng tạo mới user:"
+            break
+        fi
     done
 
 }
@@ -144,24 +140,23 @@ server_ip=$(curl -s ifconfig.co)
 # Lấy bản ghi A của domain
 domain_ip=$(dig +short $DOMAIN)
 
-# Kiểm tra nếu domain không có bản ghi A hoặc bản ghi A không trỏ về server_ip
-if [[ -z $domain_ip ]]; then
-    echo "Domain $domain không có bản ghi A."
-elif [[ $domain_ip != $server_ip ]]; then
-    echo "Domain $domain chưa trỏ bản ghi A về IP $server_ip."
+ # Kiểm tra domain và cấu hình SSL tương ứng
+if [[ -z "$DOMAIN" || "$DOMAIN" == "localhost" ]]; then
+    echo "Cấu hình MQTT với self-signed certificate"
+    configure_mosquitto_selfsigned
 else
-    echo "Domain $domain đã trỏ bản ghi A về IP $server_ip."
-    # Cài đặt Mosquitto
-    install_mosquitto
-
-    # Kiểm tra domain và cấu hình SSL tương ứng
-    if [[ -z "$DOMAIN" || "$DOMAIN" == "localhost" ]]; then
-        echo "Cấu hình MQTT với self-signed certificate"
-        configure_mosquitto_selfsigned
+    echo "Cấu hình MQTT với SSL Let's Encrypt cho domain: $DOMAIN"
+    # Kiểm tra nếu domain không có bản ghi A hoặc bản ghi A không trỏ về server_ip
+    if [[ -z $domain_ip ]]; then
+        echo "Domain $domain không có bản ghi A."
+    elif [[ $domain_ip != $server_ip ]]; then
+        echo "[DNS error:] Domain $domain chưa trỏ bản ghi A về IP $server_ip."
     else
-        echo "Cấu hình MQTT với SSL Let's Encrypt cho domain: $DOMAIN"
+        echo "Domain $domain đã trỏ bản ghi A về IP $server_ip."
+        # Cài đặt Mosquitto
+        install_mosquitto
         configure_mosquitto_letsencrypt $DOMAIN
     fi
-    hardening_mqtt
-    echo "Hoàn tất cài đặt MQTT server."
 fi
+hardening_mqtt
+echo "Hoàn tất cài đặt MQTT server."
