@@ -71,24 +71,24 @@ configure_mosquitto_selfsigned() {
     cd /etc/mosquitto/certs
     # Tạo self-signed certificate
    # sudo openssl req -new -x509 -days 365 -nodes -out /etc/mosquitto/certs/mosquitto.crt -keyout /etc/mosquitto/certs/mosquitto.key -subj "/CN=localhost"
-    #echo "----------- CREATE  Certificate Authority (CA) ---------------"
-    #sudo openssl req -new -x509 -days 1095 -extensions v3_ca -keyout ca.key -out ca_self_cert.crt -subj "/C=VN/ST=HoanKiem/L=HaNoi/O=FCQ JSC/OU=BlueTeam/CN=RootCA/emailAddress=admin@admin.com"
-    #sudo openssl genrsa -out private_self_cert.key 2048
-    #sudo openssl req -out mosquitto.csr -key private_self_cert.key -new -subj "/C=VN/ST=HoanKiem/L=HaNoi/O=FCQ JSC,/OU=BlueTeam/CN=$server_ip/emailAddress=admin@admin.com"
-    #echo "----------- CREATE  Certificate ---------------"
-    #sudo openssl x509 -req -in mosquitto.csr -CA ca_self_cert.crt -CAkey ca.key -CAcreateserial -out cert_self_cert.crt -days 1095
-    echo "----------- CREATE Certificate Authority (CA) ---------------"
-    sudo openssl genrsa -out ca.key 2048
-    sudo openssl req -new -x509 -days 1095 -extensions v3_ca -key ca.key -out ca.crt -subj "/C=VN/ST=HoanKiem/L=HaNoi/O=FCQ JSC/OU=BlueTeam/CN=RootCA/emailAddress=admin@admin.com"
-    
-    echo "----------- CREATE Private Key ---------------"
+    echo "----------- CREATE  Certificate Authority (CA) ---------------"
+    sudo openssl req -new -x509 -days 1095 -extensions v3_ca -keyout ca.key -out ca_self_cert.crt -subj "/C=VN/ST=HoanKiem/L=HaNoi/O=FCQ JSC/OU=BlueTeam/CN=RootCA/emailAddress=admin@admin.com"
     sudo openssl genrsa -out private_self_cert.key 2048
+    sudo openssl req -out mosquitto.csr -key private_self_cert.key -new -subj "/C=VN/ST=HoanKiem/L=HaNoi/O=FCQ JSC,/OU=BlueTeam/CN=$server_ip/emailAddress=admin@admin.com"
+    echo "----------- CREATE  Certificate ---------------"
+    sudo openssl x509 -req -in mosquitto.csr -CA ca_self_cert.crt -CAkey ca.key -CAcreateserial -out cert_self_cert.crt -days 1095
+    #echo "----------- CREATE Certificate Authority (CA) ---------------"
+    #sudo openssl genrsa -out ca.key 2048
+    #sudo openssl req -new -x509 -days 1095 -extensions v3_ca -key ca.key -out ca.crt -subj "/C=VN/ST=HoanKiem/L=HaNoi/O=FCQ JSC/OU=BlueTeam/CN=RootCA/emailAddress=admin@admin.com"
     
-    echo "----------- CREATE Certificate Signing Request (CSR) ---------------"
-    sudo openssl req -new -key private_self_cert.key -out mosquitto.csr -subj "/C=VN/ST=HoanKiem/L=HaNoi/O=FCQ JSC/OU=Dev/CN=$server_ip/emailAddress=admin@admin.com"
+    #echo "----------- CREATE Private Key ---------------"
+    #sudo openssl genrsa -out private_self_cert.key 2048
     
-    echo "----------- CREATE Certificate ---------------"
-    sudo openssl x509 -req -in mosquitto.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out cert_self_cert.crt -days 1095
+    #echo "----------- CREATE Certificate Signing Request (CSR) ---------------"
+    #sudo openssl req -new -key private_self_cert.key -out mosquitto.csr -subj "/C=VN/ST=HoanKiem/L=HaNoi/O=FCQ JSC/OU=Dev/CN=$server_ip/emailAddress=admin@admin.com"
+    
+    #echo "----------- CREATE Certificate ---------------"
+    #sudo openssl x509 -req -in mosquitto.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out cert_self_cert.crt -days 1095
     
     echo "Certificate generation completed successfully!"
        
