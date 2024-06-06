@@ -87,7 +87,7 @@ listener 8883
 cafile /etc/mosquitto/certs/ca_self_cert.crt
 certfile /etc/mosquitto/certs/cert_self_cert.crt
 keyfile /etc/mosquitto/certs/private_self_cert.key
-require_certificate true
+#require_certificate true
 EOT
 
     sudo systemctl restart mosquitto
