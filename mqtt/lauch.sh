@@ -3,7 +3,7 @@
 # Hàm cài đặt Mosquitto
 install_mosquitto() {
     sudo apt update
-    sudo apt install -y mosquitto mosquitto-clients
+    sudo apt install -y mosquitto mosquitto-clients openssl
     sudo systemctl enable mosquitto
     sudo systemctl start mosquitto
 }
@@ -106,7 +106,8 @@ EOT
     sudo systemctl restart mosquitto
 
      echo "----- Lưu ý: Bạn đang cấu hình MQTT với self-cert. ---------"
-     echo "--> Sao chép 'cert_self_cert.crt' tới client sau đó thực thi với đối số: --cafile cert_self_cert.crt --tls-version tlsv1.2 "
+     echo "--> Sao chép 'ca_self_cert.crt' tới client sau đó thực thi với đối số: --cafile ca_self_cert.crt --tls-version tlsv1.2 "
+     cat /etc/mosquitto/certs/ca_self_cert.crt
 }
 
 check_escape() {
