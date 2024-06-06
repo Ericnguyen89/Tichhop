@@ -127,6 +127,7 @@ hardening_mqtt() {
         if [[ $? -eq 1 ]]; then
             echo "Đã ngừng tạo mới user:"
             sudo chown mosquitto: /etc/mosquitto/passwd
+            sudo systemctl restart mosquitto
             break
         fi
     done
